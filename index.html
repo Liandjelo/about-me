@@ -980,7 +980,7 @@
             // Fade effect
             imgEl.style.opacity = '0.5';
             setTimeout(() => {
-                imgEl.src = imgPath;
+                imgEl.src = `${api_link}${imgPath}`;
                 imgEl.onload = () => { imgEl.style.opacity = '1'; };
             }, 100);
 
