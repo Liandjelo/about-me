@@ -611,14 +611,14 @@
         // 2. IMPORTANT: Use a standard "Contact Form" template (variables: from_name, from_email, message)
 
 
-
+        const api_link = "https://liandjelomartos.onrender.com";
         // --- DATA CONFIGURATION ---
         const portfolioData = {
             name: "Liandjelo Martos",
             initials: "LM",
             role: "Web Developer",
             location: "Tagum City, Davao Del Norte",
-            profileImage: "./img/profile/Profile.jpg",
+            profileImage: `${api_link}/img/profile/Profile.jpg`,
             social: {
                 github: "https://github.com",
                 linkedin: "https://linkedin.com",
@@ -626,97 +626,15 @@
             }
         };
 
-        const projects = [
-            {
-                title: "E-commerce Restaurant",
-                shortDescription: "Online Pizza Ordering System",
-                description: "A web-based system that allows users to browse, select, and order pizzas easily.",
-                tech: ['HTML', 'CSS', 'Javascript', "PHP"],
-                link: "https://github.com/Liandjelo/e-commerce-pizzakaya",
-                image: "./img/projects/project1/main.png",
-                attachments: [
-                    "./img/projects/project1/gallery/homepage.png",
-                    "./img/projects/project1/gallery/menu.png",
-                    "./img/projects/project1/gallery/menu-bottom.png",
-                    "./img/projects/project1/gallery/item-modal.png",
-                    "./img/projects/project1/gallery/item-modal-bottom.png",
-                    "./img/projects/project1/gallery/profile.png",
-                    "./img/projects/project1/gallery/about-us.png",
-                    "./img/projects/project1/gallery/login.png",
-                    "./img/projects/project1/gallery/create-account.png",
-                ]
-            },
-            {
-                title: "Beach Resort Booking Site",
-                shortDescription: "Online platform for booking beach resort stays.",
-                description: "A user-friendly website that allows guests to browse available resorts, check room availability, and make reservations seamlessly.",
-                tech: ['HTML', 'CSS'],
-                link: "https://github.com/Liandjelo/hayahay-beach-resort1",
-                image: "./img/projects/project2/main.png",
-                attachments: [
-                    "./img/projects/project2/gallery/home.png",
-                    "./img/projects/project2/gallery/cottage.png",
-                    "./img/projects/project2/gallery/rooms.png",
-                    "./img/projects/project2/gallery/reservations.png",
-                    "./img/projects/project2/gallery/about.png",
-                ]
-            },
-            {
-                title: "Snake Game",
-                shortDescription: "A simple classic snake game.",
-                description: "A browser-based recreation of the classic Snake game featuring smooth controls, increasing difficulty, and responsive design.",
-                tech: ['HTML', 'CSS', 'Javascript'],
-                link: "https://github.com/Liandjelo/snake-game",
-                image: "./img/projects/project3/main.png",
-                attachments: [
-                    "./img/projects/project3/gallery/menu.png",
-                    "./img/projects/project3/gallery/start.png",
-                    "./img/projects/project3/gallery/start1.png"
-                ]
-            },
-            {
-                title: "AI Chat System",
-                shortDescription: "Engage in intelligent conversations with a smart AI assistant.",
-                description: "AI Chat System allows you to have multi-turn conversations with an advanced AI assistant.",
-                tech: ['React', 'AI'],
-                link: "https://github.com/Liandjelo/chatbot",
-                image: "./img/projects/project4/main.png",
-                attachments: [
-                    "./img/projects/project4/gallery/chat-top.png",
-                    "./img/projects/project4/gallery/chat-bot.png",
-                ]
-            },
-            {
-                title: "Quiz Generator",
-                shortDescription: "Automatically create multiple-choice quizzes from imported PDF documents.",
-                description: "PDF MCQ Quiz Generator lets you import PDF files and automatically generate multiple-choice questions based on the content.",
-                tech: ['React', 'AI'],
-                link: "https://github.com/Liandjelo/quiz-generator",
-                image: "./img/projects/project5/main.png",
-                attachments: [
-                    "./img/projects/project5/gallery/1.png",
-                    "./img/projects/project5/gallery/2.png",
-                    "./img/projects/project5/gallery/3.png",
-                    "./img/projects/project5/gallery/4.png",
-                    "./img/projects/project5/gallery/5.png",
-                    "./img/projects/project5/gallery/6.png",
-                ]
-            },
-            {
-                title: "Webserver Starter",
-                shortDescription: "Lightweight local webserver with built-in firewall control.",
-                description: "A starter webserver application that includes basic firewall filtering, IP restriction, and secure local hosting.",
-                tech: ['Electron', 'HTML', 'CSS', 'Javascript'],
-                link: "https://github.com/Liandjelo/firewall-app",
-                image: "./img/projects/project6/main.png",
-                attachments: [
-                    "./img/projects/project6/gallery/1.png",
-                    "./img/projects/project6/gallery/3.png",
-                    "./img/projects/project6/gallery/4.png",
-                    "./img/projects/project6/gallery/5.png"
-                ]
-            }
-        ];
+        let projects = [];
+
+        fetch(`${api_link}/projects.json`)
+            .then(res => res.json())
+            .then(data => {
+                projects = data;
+                initProjects();
+            })
+            .catch(err => console.error("Error loading projects.json:", err));
 
         // Global State
         let currentLightboxImages = [];
@@ -730,7 +648,6 @@
             initPortfolioData();
             initNavigation();
             initTypewriter();
-            initProjects();
             initActivityGraph();
             initTechTicker();
             initWorkflow();
@@ -845,7 +762,7 @@
                 card.innerHTML = `
                     <div class="h-48 relative overflow-hidden">
                         <div class="absolute inset-0 bg-slate-800 animate-pulse"></div>
-                        <img src="${project.image}" alt="${project.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" />
+                        <img  src="${api_link}${project.image}" alt="${project.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" />
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
                     </div>
                     <div class="p-6 flex flex-col flex-grow relative">
@@ -964,7 +881,7 @@
                 desc
             };
 
-            fetch('https://liandjelomartos.onrender.com/send-project', {
+            fetch(`${api_link}/send-project`, {
                 method: 'POST',
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -994,7 +911,7 @@
             const project = projects[index];
             if (!project) return;
 
-            document.getElementById('modal-image').src = project.image;
+            document.getElementById('modal-image').src = `${api_link}${project.image}`;
             document.getElementById('modal-title').textContent = project.title;
             document.getElementById('modal-link').href = project.link;
             document.getElementById('modal-description').textContent = project.description;
