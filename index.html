@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <style>
+        /* --- ANIMATIONS --- */
+        @keyframes typing {
+            from {
+                width: 0
+            }
+
+            to {
+                width: 100%
+            }
+        }
+
+        @keyframes blink {
+            50% {
+                border-color: transparent
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @keyframes slide-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes modal-pop {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes task-move {
+            0% {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
+
+            45% {
+                transform: translateX(120px) scale(0.95);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: translateX(120px) scale(0.95);
+                opacity: 0;
+            }
+
+            51% {
+                transform: translateX(0) scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-slide-up {
+            animation: slide-up 0.8s ease-out forwards;
+        }
+
+        .animate-modal {
+            animation: modal-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-marquee {
+            animation: marquee 20s linear infinite;
+        }
+
+        .task-cycle {
+            animation: task-move 4s infinite ease-in-out;
+        }
+
+        /* --- GLASS EFFECT --- */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- UTILITIES --- */
+        .code-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+            color: #38bdf8;
+        }
+
+        .grid-bg {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
+
+        /* --- IMAGE QUALITY FIXES --- */
+        img {
+            image-rendering: auto;
+            /* Hardware acceleration to smooth edges during transforms */
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-font-smoothing: subpixel-antialiased;
+        }
+
+        /* --- CUSTOM SCROLLBAR --- */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* --- LOADING SCREEN --- */
+        #loading-screen {
+            transition: opacity 0.5s ease-out, visibility 0.5s;
+        }
+
+        .fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-950 text-slate-200 font-sans selection:bg-sky-500/30 selection:text-white overflow-x-hidden overflow-y-hidden"
+    id="body-content">
+
+    <div id="loading-screen" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center">
+        <div class="w-16 h-16 border-4 border-slate-800 border-t-sky-500 rounded-full animate-spin mb-4"></div>
+        <div class="text-sky-500 font-mono text-sm tracking-wider animate-pulse">LOADING...</div>
+    </div>
+
+    <div class="fixed inset-0 grid-bg pointer-events-none opacity-20 z-0"></div>
+    <div class="fixed inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950 z-0 pointer-events-none">
+    </div>
+
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/10 px-6 py-4 shadow-lg transition-transform duration-500 -translate-y-full"
+        id="navbar">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2 cursor-pointer group" onclick="scrollToSection('hero')">
+                <div
+                    class="w-8 h-8 bg-sky-500 rounded flex items-center justify-center group-hover:bg-sky-400 transition-colors shadow-lg shadow-sky-500/20">
+                    <span id="nav-initials" class="font-bold text-white"></span>
+                </div>
+                <span id="nav-name"
+                    class="font-mono font-semibold text-slate-200 group-hover:text-white transition-colors"></span>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+                <div id="nav-links" class="flex items-center space-x-6"></div>
+                <button onclick="openCollab()"
+                    class="ml-4 px-5 py-2 bg-sky-500 hover:bg-sky-400 text-white text-sm font-bold rounded-full transition-all hover:shadow-[0_0_15px_rgba(14,165,233,0.5)] flex items-center gap-2">
+                    <i data-lucide="zap" class="w-4 h-4"></i>
+                    <span>Start Project</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative z-10 opacity-0 transition-opacity duration-1000 delay-300" id="main-content">
+        <section id="hero" class="min-h-screen flex flex-col justify-center items-center px-6 pt-20">
+            <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8 animate-slide-up">
+                    <div class="relative w-24 h-24 md:w-32 md:h-32 group">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-sky-500 to-purple-500 rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-500">
+                        </div>
+                        <img id="hero-profile-img" src="" alt="Profile"
+                            class="relative w-full h-full object-cover rounded-full border-2 border-white/10 shadow-2xl group-hover:scale-105 transition-transform duration-500" />
+                        <div
+                            class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 border-2 border-slate-950 rounded-full">
+                        </div>
+                    </div>
+
+                    <div
+                        class="inline-flex items-center space-x-2 bg-sky-500/10 border border-sky-500/20 px-3 py-1 rounded-full">
+                        <span class="relative flex h-2 w-2">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
+                        </span>
+                        <span class="text-xs font-medium text-sky-400 uppercase tracking-wide">Available for Work</span>
+                    </div>
+
+                    <h1 class="text-5xl md:text-7xl font-bold text-white tracking-tight leading-tight">
+                        Hi, I'm <span id="hero-name"></span>.<br />
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-purple-500">Design.
+                            Build. Scale.</span>
+                    </h1>
+
+                    <p class="text-lg text-slate-400 max-w-lg leading-relaxed">
+                        Full-stack developer specializing in high-performance web applications.
+                        I turn complex requirements into clean, automated, and productive systems.
+                    </p>
+
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="scrollToSection('projects')"
+                            class="px-8 py-4 bg-white text-slate-950 font-bold rounded-lg hover:bg-slate-200 transition-all hover:scale-105 active:scale-95 flex items-center">
+                            View Work <i data-lucide="arrow-right" class="ml-2 w-4 h-4"></i>
+                        </button>
+                        <button onclick="openCollab()"
+                            class="px-8 py-4 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 border border-slate-700 transition-all hover:scale-105 active:scale-95">
+                            Start Project
+                        </button>
+                    </div>
+
+                    <div class="pt-8 flex items-center gap-2 text-sm text-slate-500" id="social-links"></div>
+                </div>
+
+                <div class="hidden lg:block">
+                    <div
+                        class="w-full max-w-2xl mx-auto glass-panel rounded-lg overflow-hidden shadow-2xl animate-float border border-white/10">
+                        <div class="bg-slate-900 px-4 py-2 flex items-center space-x-2 border-b border-white/10">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span class="ml-4 text-xs text-slate-500 font-mono">zsh — 80x24</span>
+                        </div>
+                        <div class="p-6 font-mono text-sm md:text-base bg-slate-950/80">
+                            <div class="text-slate-400 mb-2">
+                                <span class="text-green-400">➜</span> <span class="text-sky-400">~/workspace</span>
+                                <span class="text-slate-500">git init portfolio</span>
+                            </div>
+                            <div class="text-slate-300 mb-4">Initialized empty Git repository in
+                                /Users/dev/workspace/portfolio/.git/</div>
+                            <div class="text-slate-400">
+                                <span class="text-green-400">➜</span> <span class="text-sky-400">~/workspace</span>
+                                <span class="text-slate-500">echo "</span><span class="text-white code-cursor"
+                                    id="terminal-text"></span><span class="text-slate-500">"</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-end">
+                        <div class="bg-slate-900/50 p-4 rounded-lg border border-white/5 backdrop-blur-sm">
+                            <div class="text-xs text-slate-500 mb-2 font-mono text-right">Last 30 Days Activity</div>
+                            <div class="flex gap-1 justify-center opacity-80" id="activity-graph"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="w-full overflow-hidden bg-slate-950 py-4 border-y border-white/5">
+            <div class="flex items-center space-x-12 animate-marquee whitespace-nowrap" id="tech-ticker"></div>
+        </div>
+
+        <section id="workflow" class="py-24 px-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-20 bg-sky-500/5 blur-[100px] rounded-full pointer-events-none"></div>
+            <div class="max-w-6xl mx-auto">
+                <div class="mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Productivity Engine</h2>
+                    <div class="h-1 w-20 bg-sky-500 rounded-full"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-bold text-white flex items-center">
+                            <i data-lucide="zap" class="w-6 h-6 text-yellow-400 mr-2"></i>
+                            High-Velocity Workflow
+                        </h3>
+                        <p class="text-slate-400">I don't just write code; I build engines. My workflow is optimized for
+                            speed, reliability, and continuous delivery.</p>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-slate-400">Efficiency Rate</span>
+                                <span class="text-green-400 font-mono">98.5%</span>
+                            </div>
+                            <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-500 rounded-full w-[98.5%] animate-pulse"></div>
+                            </div>
+
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-slate-400">Tasks Automating</span>
+                                <span class="text-sky-400 font-mono">Processing...</span>
+                            </div>
+                            <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-sky-500 rounded-full w-[75%] animate-pulse"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-6 pt-4">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-white font-mono" id="tasks-count">0</div>
+                                <div class="text-xs text-slate-500 uppercase tracking-wider">Tasks Deployed</div>
+                            </div>
+                            <div class="h-8 w-px bg-white/10"></div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-white font-mono">0.02s</div>
+                                <div class="text-xs text-slate-500 uppercase tracking-wider">Latency</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-xl border border-white/5 relative overflow-hidden h-80">
+                        <div
+                            class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-500 via-purple-500 to-green-500">
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 h-full">
+                            <div class="bg-slate-800/50 rounded p-3 flex flex-col gap-3">
+                                <div class="text-xs font-bold text-slate-500 uppercase mb-2">Backlog</div>
+                                <div class="bg-slate-700/50 p-3 rounded border border-white/5 opacity-50">
+                                    <div class="h-2 w-12 bg-slate-600 rounded mb-2"></div>
+                                    <div class="h-2 w-20 bg-slate-600 rounded"></div>
+                                </div>
+                            </div>
+                            <div class="bg-slate-800/50 rounded p-3 flex flex-col gap-3 relative">
+                                <div class="text-xs font-bold text-sky-500 uppercase mb-2 flex items-center">
+                                    Processing <span
+                                        class="ml-auto w-2 h-2 bg-sky-500 rounded-full animate-pulse"></span>
+                                </div>
+                                <div
+                                    class="bg-sky-900/20 p-3 rounded border border-sky-500/30 task-cycle absolute w-[85%] z-10 backdrop-blur-sm">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="h-2 w-12 bg-sky-500/50 rounded"></div>
+                                        <i data-lucide="code" class="w-3 h-3 text-sky-400"></i>
+                                    </div>
+                                    <div class="h-2 w-24 bg-slate-600 rounded mb-1"></div>
+                                    <div class="h-2 w-16 bg-slate-600 rounded"></div>
+                                </div>
+                                <div class="bg-transparent p-3 rounded border border-dashed border-white/10 h-20"></div>
+                            </div>
+                            <div class="bg-slate-800/50 rounded p-3 flex flex-col gap-3">
+                                <div class="text-xs font-bold text-green-500 uppercase mb-2">Shipped</div>
+                                <div class="bg-green-900/10 p-3 rounded border border-green-500/20 animate-slide-up"
+                                    id="shipped-card">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="h-2 w-14 bg-green-500/40 rounded"></div>
+                                        <i data-lucide="check-circle" class="w-3 h-3 text-green-400"></i>
+                                    </div>
+                                    <div class="h-2 w-20 bg-slate-600 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="py-24 px-6 bg-slate-900/30">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Recent Shipments</h2>
+                        <div class="h-1 w-20 bg-purple-500 rounded-full"></div>
+                    </div>
+                    <p class="text-slate-400 mt-4 md:mt-0 max-w-md text-right">Click on any project to view source code
+                        and architecture details.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="projects-container"></div>
+            </div>
+        </section>
+
+        <footer class="py-8 text-center text-slate-600 text-sm border-t border-white/5 bg-slate-950">
+            <p id="footer-text"></p>
+        </footer>
+    </main>
+
+    <div id="project-modal"
+        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden"
+        onclick="closeModal()">
+        <div class="w-full max-w-3xl bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-modal flex flex-col max-h-[90vh]"
+            onclick="event.stopPropagation()">
+            <div class="h-64 relative overflow-hidden group flex-shrink-0">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent z-10"></div>
+                <img id="modal-image" src="" alt="" class="w-full h-full object-cover" />
+                <button onclick="closeModal()"
+                    class="absolute top-4 right-4 z-20 p-2 bg-black/40 hover:bg-black/60 rounded-full text-white transition-colors backdrop-blur-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <div class="absolute bottom-6 left-6 z-20">
+                    <h2 id="modal-title" class="text-3xl font-bold text-white mb-2"></h2>
+                    <div class="flex items-center space-x-3">
+                        <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer"
+                            class="flex items-center space-x-2 bg-white text-slate-900 hover:bg-slate-200 text-sm font-bold transition-colors px-4 py-2 rounded-lg">
+                            <i data-lucide="github" class="w-4 h-4"></i>
+                            <span>View Source</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 bg-slate-900 overflow-y-auto custom-scrollbar">
+                <p id="modal-description" class="text-slate-300 leading-relaxed mb-8 text-lg"></p>
+
+                <div id="modal-gallery-section" class="mb-8 hidden">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i data-lucide="grid" class="w-4 h-4"></i> Project Gallery (Click to View)
+                    </h3>
+                    <div id="modal-gallery-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Tech Stack</h3>
+                    <div id="modal-tech-stack" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="lightbox"
+        class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl hidden flex items-center justify-center animate-modal">
+        <button onclick="closeLightbox()"
+            class="absolute top-6 right-6 p-2 text-white/50 hover:text-white transition-colors z-[110]">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+        <button onclick="prevLightboxImage()"
+            class="absolute left-4 md:left-8 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all z-[110]">
+            <i data-lucide="chevron-left" class="w-6 h-6"></i>
+        </button>
+        <button onclick="nextLightboxImage()"
+            class="absolute right-4 md:right-8 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all z-[110]">
+            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+        </button>
+        <div class="relative w-full h-full flex items-center justify-center p-4 md:p-12">
+            <img id="lightbox-image" src="" alt="Full View"
+                class="max-h-full max-w-full object-contain rounded shadow-2xl transition-opacity duration-300" />
+            <div class="absolute bottom-8 text-center">
+                <span id="lightbox-counter"
+                    class="text-white/50 font-mono text-sm px-3 py-1 bg-black/50 rounded-full"></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="collab-modal"
+        class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md hidden transition-opacity duration-300 opacity-0">
+        <div
+            class="w-full max-w-2xl bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col relative min-h-[500px]">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/50">
+                <div>
+                    <h2 class="text-xl font-bold text-white">Initialize Project</h2>
+                    <p class="text-xs text-slate-400 font-mono" id="collab-step-indicator">Step 1 of 3: Scope</p>
+                </div>
+                <button onclick="closeCollab()" class="text-slate-400 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="w-full h-1 bg-slate-800">
+                <div id="collab-progress" class="h-full bg-sky-500 transition-all duration-500 w-[33%]"></div>
+            </div>
+
+            <div class="p-8 flex-grow flex flex-col relative overflow-hidden">
+                <div id="step-1" class="wizard-step transition-all duration-500 absolute inset-0 p-8 overflow-y-auto">
+                    <h3 class="text-lg text-white mb-6">What are we building?</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="selectType(this, 'Web App')"
+                            class="type-card p-4 rounded-xl border border-slate-700 bg-slate-800/50 hover:border-sky-500 hover:bg-sky-500/10 transition-all text-left group">
+                            <i data-lucide="layout" class="w-6 h-6 text-slate-400 group-hover:text-sky-400 mb-2"></i>
+                            <div class="font-bold text-slate-200">Web Application</div>
+                            <div class="text-xs text-slate-500">SaaS, Dashboard, Tool</div>
+                        </button>
+                        <button onclick="selectType(this, 'E-Commerce')"
+                            class="type-card p-4 rounded-xl border border-slate-700 bg-slate-800/50 hover:border-sky-500 hover:bg-sky-500/10 transition-all text-left group">
+                            <i data-lucide="shopping-cart"
+                                class="w-6 h-6 text-slate-400 group-hover:text-sky-400 mb-2"></i>
+                            <div class="font-bold text-slate-200">E-Commerce</div>
+                            <div class="text-xs text-slate-500">Shop, Marketplace</div>
+                        </button>
+                        <button onclick="selectType(this, 'Landing Page')"
+                            class="type-card p-4 rounded-xl border border-slate-700 bg-slate-800/50 hover:border-sky-500 hover:bg-sky-500/10 transition-all text-left group">
+                            <i data-lucide="monitor" class="w-6 h-6 text-slate-400 group-hover:text-sky-400 mb-2"></i>
+                            <div class="font-bold text-slate-200">Landing Page</div>
+                            <div class="text-xs text-slate-500">Marketing, Portfolio</div>
+                        </button>
+                        <button onclick="selectType(this, 'Bot/AI')"
+                            class="type-card p-4 rounded-xl border border-slate-700 bg-slate-800/50 hover:border-sky-500 hover:bg-sky-500/10 transition-all text-left group">
+                            <i data-lucide="bot" class="w-6 h-6 text-slate-400 group-hover:text-sky-400 mb-2"></i>
+                            <div class="font-bold text-slate-200">AI / Automation</div>
+                            <div class="text-xs text-slate-500">Chatbot, Scripting</div>
+                        </button>
+                    </div>
+                    <input type="hidden" id="selected-project-type" value="">
+                </div>
+
+                <div id="step-2"
+                    class="wizard-step transition-all duration-500 translate-x-full opacity-0 absolute inset-0 p-8 overflow-y-auto pointer-events-none">
+                    <h3 class="text-lg text-white mb-6">Specifications</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-2">Estimated Budget (USD)</label>
+                            <input type="range" min="500" max="10000" step="500" value="2000"
+                                class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-500"
+                                oninput="document.getElementById('budget-val').textContent = '$' + this.value + (this.value == 10000 ? '+' : '')">
+                            <div class="flex justify-between text-xs text-slate-500 mt-2 font-mono">
+                                <span>$500</span>
+                                <span id="budget-val" class="text-sky-400 font-bold">$2000</span>
+                                <span>$10k+</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-2">Project Description</label>
+                            <textarea id="project-desc" rows="3"
+                                class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-sky-500 focus:outline-none resize-none"
+                                placeholder="Briefly describe the core functionality..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-3"
+                    class="wizard-step transition-all duration-500 translate-x-full opacity-0 absolute inset-0 p-8 overflow-y-auto pointer-events-none">
+                    <h3 class="text-lg text-white mb-6">Finalize Request</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="client-name"
+                            class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-sky-500 focus:outline-none"
+                            placeholder="Your Name">
+                        <input type="email" id="client-email"
+                            class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-sky-500 focus:outline-none"
+                            placeholder="Business Email">
+                        <div class="bg-sky-900/10 border border-sky-500/20 p-4 rounded-lg mt-4">
+                            <div class="flex items-center gap-2 text-sky-400 mb-2">
+                                <i data-lucide="terminal" class="w-4 h-4"></i>
+                                <span class="text-xs font-bold uppercase">System Output</span>
+                            </div>
+                            <p class="text-xs text-slate-400 font-mono">
+                                > Compiling requirements...<br>
+                                > Estimating workload...<br>
+                                > Ready to submit payload.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-success"
+                    class="wizard-step transition-all duration-500 translate-x-full opacity-0 absolute inset-0 p-8 flex flex-col items-center justify-center text-center pointer-events-none">
+                    <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="check" class="w-8 h-8 text-green-500"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Transmission Received</h3>
+                    <p class="text-slate-400 mb-6">Your project ticket has been queued. I will review the specs and
+                        deploy a response shortly.</p>
+                    <button onclick="closeCollab()"
+                        class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors">Return
+                        to Dashboard</button>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-white/5 bg-slate-900 flex justify-between">
+                <button id="collab-back" onclick="changeStep(-1)"
+                    class="px-6 py-2 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors invisible">Back</button>
+                <button id="collab-next" onclick="changeStep(1)"
+                    class="px-6 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg transition-colors shadow-lg shadow-sky-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next Step
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- EMAILJS CONFIGURATION ---
+        // 1. Get these from https://dashboard.emailjs.com/admin
+        // 2. IMPORTANT: Use a standard "Contact Form" template (variables: from_name, from_email, message)
+
+
+
+        // --- DATA CONFIGURATION ---
+        const portfolioData = {
+            name: "Liandjelo Martos",
+            initials: "LM",
+            role: "Web Developer",
+            location: "Tagum City, Davao Del Norte",
+            profileImage: "./img/profile/Profile.jpg",
+            social: {
+                github: "https://github.com",
+                linkedin: "https://linkedin.com",
+                email: "mailto:alex@example.com"
+            }
+        };
+
+        const projects = [
+            {
+                title: "E-commerce Restaurant",
+                shortDescription: "Online Pizza Ordering System",
+                description: "A web-based system that allows users to browse, select, and order pizzas easily.",
+                tech: ['HTML', 'CSS', 'Javascript', "PHP"],
+                link: "https://github.com/Liandjelo/e-commerce-pizzakaya",
+                image: "./img/projects/project1/main.png",
+                attachments: [
+                    "./img/projects/project1/gallery/homepage.png",
+                    "./img/projects/project1/gallery/menu.png",
+                    "./img/projects/project1/gallery/menu-bottom.png",
+                    "./img/projects/project1/gallery/item-modal.png",
+                    "./img/projects/project1/gallery/item-modal-bottom.png",
+                    "./img/projects/project1/gallery/profile.png",
+                    "./img/projects/project1/gallery/about-us.png",
+                    "./img/projects/project1/gallery/login.png",
+                    "./img/projects/project1/gallery/create-account.png",
+                ]
+            },
+            {
+                title: "Beach Resort Booking Site",
+                shortDescription: "Online platform for booking beach resort stays.",
+                description: "A user-friendly website that allows guests to browse available resorts, check room availability, and make reservations seamlessly.",
+                tech: ['HTML', 'CSS'],
+                link: "https://github.com/Liandjelo/hayahay-beach-resort1",
+                image: "./img/projects/project2/main.png",
+                attachments: [
+                    "./img/projects/project2/gallery/home.png",
+                    "./img/projects/project2/gallery/cottage.png",
+                    "./img/projects/project2/gallery/rooms.png",
+                    "./img/projects/project2/gallery/reservations.png",
+                    "./img/projects/project2/gallery/about.png",
+                ]
+            },
+            {
+                title: "Snake Game",
+                shortDescription: "A simple classic snake game.",
+                description: "A browser-based recreation of the classic Snake game featuring smooth controls, increasing difficulty, and responsive design.",
+                tech: ['HTML', 'CSS', 'Javascript'],
+                link: "https://github.com/Liandjelo/snake-game",
+                image: "./img/projects/project3/main.png",
+                attachments: [
+                    "./img/projects/project3/gallery/menu.png",
+                    "./img/projects/project3/gallery/start.png",
+                    "./img/projects/project3/gallery/start1.png"
+                ]
+            },
+            {
+                title: "AI Chat System",
+                shortDescription: "Engage in intelligent conversations with a smart AI assistant.",
+                description: "AI Chat System allows you to have multi-turn conversations with an advanced AI assistant.",
+                tech: ['React', 'AI'],
+                link: "https://github.com/Liandjelo/chatbot",
+                image: "./img/projects/project4/main.png",
+                attachments: [
+                    "./img/projects/project4/gallery/chat-top.png",
+                    "./img/projects/project4/gallery/chat-bot.png",
+                ]
+            },
+            {
+                title: "Quiz Generator",
+                shortDescription: "Automatically create multiple-choice quizzes from imported PDF documents.",
+                description: "PDF MCQ Quiz Generator lets you import PDF files and automatically generate multiple-choice questions based on the content.",
+                tech: ['React', 'AI'],
+                link: "https://github.com/Liandjelo/quiz-generator",
+                image: "./img/projects/project5/main.png",
+                attachments: [
+                    "./img/projects/project5/gallery/1.png",
+                    "./img/projects/project5/gallery/2.png",
+                    "./img/projects/project5/gallery/3.png",
+                    "./img/projects/project5/gallery/4.png",
+                    "./img/projects/project5/gallery/5.png",
+                    "./img/projects/project5/gallery/6.png",
+                ]
+            },
+            {
+                title: "Webserver Starter",
+                shortDescription: "Lightweight local webserver with built-in firewall control.",
+                description: "A starter webserver application that includes basic firewall filtering, IP restriction, and secure local hosting.",
+                tech: ['Electron', 'HTML', 'CSS', 'Javascript'],
+                link: "https://github.com/Liandjelo/firewall-app",
+                image: "./img/projects/project6/main.png",
+                attachments: [
+                    "./img/projects/project6/gallery/1.png",
+                    "./img/projects/project6/gallery/2.png",
+                    "./img/projects/project6/gallery/3.png",
+                    "./img/projects/project6/gallery/4.png",
+                    "./img/projects/project6/gallery/5.png"
+                ]
+            }
+        ];
+
+        // Global State
+        let currentLightboxImages = [];
+        let currentLightboxIndex = 0;
+        let wizardStep = 1;
+        const totalWizardSteps = 3;
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            initLoader();
+            initPortfolioData();
+            initNavigation();
+            initTypewriter();
+            initProjects();
+            initActivityGraph();
+            initTechTicker();
+            initWorkflow();
+            if (window.lucide) lucide.createIcons();
+
+            // Lightbox keyboard listener
+            document.addEventListener('keydown', (e) => {
+                const lightbox = document.getElementById('lightbox');
+                if (!lightbox.classList.contains('hidden')) {
+                    if (e.key === 'Escape') closeLightbox();
+                    if (e.key === 'ArrowRight') nextLightboxImage();
+                    if (e.key === 'ArrowLeft') prevLightboxImage();
+                }
+            });
+        });
+
+        // --- CORE FUNCTIONS ---
+        function initLoader() {
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                if (loader) {
+                    loader.classList.add('fade-out');
+                    document.getElementById('main-content').classList.remove('opacity-0');
+                    document.getElementById('navbar').classList.remove('-translate-y-full');
+                    document.getElementById('body-content').classList.remove('overflow-y-hidden');
+                    setTimeout(() => loader.style.display = 'none', 500);
+                }
+            }, 2000);
+        }
+
+        function initPortfolioData() {
+            document.getElementById('nav-initials').textContent = portfolioData.initials;
+            document.getElementById('nav-name').textContent = portfolioData.name;
+            document.getElementById('hero-name').textContent = portfolioData.name;
+            const heroImg = document.getElementById('hero-profile-img');
+            if (heroImg) heroImg.src = portfolioData.profileImage;
+
+            document.getElementById('footer-text').textContent = `© ${new Date().getFullYear()} ${portfolioData.name}. Built with Vanilla JS & Tailwind.`;
+
+            const socialContainer = document.getElementById('social-links');
+            const links = [
+                { icon: 'github', url: portfolioData.social.github },
+                { icon: 'linkedin', url: portfolioData.social.linkedin },
+                { icon: 'mail', url: portfolioData.social.email }
+            ];
+            socialContainer.innerHTML = links.map(link =>
+                `<a href="${link.url}" class="hover:text-white transition-colors" target="_blank"><i data-lucide="${link.icon}" class="w-5 h-5"></i></a>`
+            ).join('') + `<div class="h-4 w-px bg-slate-800 mx-2"></div><span>${portfolioData.location}</span>`;
+        }
+
+        function initNavigation() {
+            const sections = ['About', 'Workflow', 'Projects'];
+            const navContainer = document.getElementById('nav-links');
+            navContainer.innerHTML = '';
+
+            sections.forEach(section => {
+                const btn = document.createElement('button');
+                btn.textContent = section;
+                btn.className = 'text-sm font-medium transition-colors text-slate-400 hover:text-white';
+                btn.dataset.section = section.toLowerCase();
+                btn.onclick = () => scrollToSection(section === 'About' ? 'hero' : section.toLowerCase());
+                navContainer.appendChild(btn);
+            });
+
+            window.addEventListener('scroll', () => {
+                const scrollPos = window.scrollY + 200;
+                ['hero', 'workflow', 'projects'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && el.offsetTop <= scrollPos && (el.offsetTop + el.offsetHeight) > scrollPos) {
+                        updateActiveNav(id === 'hero' ? 'about' : id);
+                    }
+                });
+            });
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateActiveNav(activeId) {
+            document.querySelectorAll('#nav-links button[data-section]').forEach(btn => {
+                btn.className = btn.dataset.section === activeId
+                    ? 'text-sm font-medium transition-colors text-sky-400'
+                    : 'text-sm font-medium transition-colors text-slate-400 hover:text-white';
+            });
+        }
+
+        function initTypewriter() {
+            const textEl = document.getElementById('terminal-text');
+            const fullText = "Building scalable solutions efficiently...";
+            let index = 0;
+            if (textEl) {
+                setInterval(() => {
+                    if (index <= fullText.length) textEl.textContent = fullText.slice(0, index++);
+                }, 50);
+            }
+        }
+
+        function initProjects() {
+            const container = document.getElementById('projects-container');
+            container.innerHTML = '';
+            projects.forEach((project, index) => {
+                const card = document.createElement('div');
+                card.className = "glass-panel rounded-xl overflow-hidden hover:-translate-y-2 transition-all duration-300 group cursor-pointer border-t border-white/5 hover:border-sky-500/30 flex flex-col h-full";
+                card.style.animationDelay = `${index * 100}ms`;
+                card.onclick = () => openModal(index);
+
+                const techTags = project.tech.slice(0, 3).map(t => `<span class="px-2 py-1 text-xs font-mono bg-slate-800/50 text-slate-400 rounded">${t}</span>`).join('');
+                const extraTech = project.tech.length > 3 ? `<span class="px-2 py-1 text-xs font-mono bg-slate-800/50 text-slate-400 rounded">+${project.tech.length - 3}</span>` : '';
+                const galleryBadge = project.attachments?.length > 0 ? `<div class="mt-3 flex items-center text-xs text-slate-500 gap-1"><i data-lucide="image" class="w-3 h-3"></i><span>${project.attachments.length} Gallery Photos</span></div>` : '';
+
+                card.innerHTML = `
+                    <div class="h-48 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-slate-800 animate-pulse"></div>
+                        <img src="${project.image}" alt="${project.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow relative">
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-sky-400 transition-colors">${project.title}</h3>
+                        <p class="text-slate-400 text-sm mb-4 leading-relaxed flex-grow">${project.shortDescription}</p>
+                        <div class="flex flex-wrap gap-2 mt-auto pt-4 border-t border-white/5">${techTags}${extraTech}</div>
+                        ${galleryBadge}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- WIZARD LOGIC ---
+        function openCollab() {
+            const modal = document.getElementById('collab-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            wizardStep = 1;
+            updateWizardUI();
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCollab() {
+            const modal = document.getElementById('collab-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('step-success').classList.add('translate-x-full', 'opacity-0');
+                document.getElementById('step-1').classList.remove('-translate-x-full', 'opacity-0', 'pointer-events-none');
+                document.getElementById('step-2').classList.add('translate-x-full', 'opacity-0');
+                document.getElementById('step-3').classList.add('translate-x-full', 'opacity-0');
+            }, 300);
+            document.body.style.overflow = 'auto';
+        }
+
+        function selectType(btn, type) {
+            document.querySelectorAll('.type-card').forEach(c => {
+                c.classList.remove('border-sky-500', 'bg-sky-500/10');
+                c.classList.add('border-slate-700', 'bg-slate-800/50');
+            });
+            btn.classList.remove('border-slate-700', 'bg-slate-800/50');
+            btn.classList.add('border-sky-500', 'bg-sky-500/10');
+            document.getElementById('selected-project-type').value = type;
+            setTimeout(() => changeStep(1), 300);
+        }
+
+        function changeStep(direction) {
+            const prevStepEl = document.getElementById(`step-${wizardStep}`);
+            const nextStepNum = wizardStep + direction;
+            const nextStepEl = document.getElementById(`step-${nextStepNum}`);
+
+            // Validation
+            if (direction === 1) {
+                if (wizardStep === 1 && !document.getElementById('selected-project-type').value) {
+                    alert("Please select a project type first.");
+                    return;
+                }
+                if (wizardStep === 3) {
+                    submitProject();
+                    return;
+                }
+            }
+            if (nextStepNum < 1 || nextStepNum > totalWizardSteps) return;
+
+            // Slide Animation
+            if (direction === 1) {
+                prevStepEl.classList.add('-translate-x-full', 'opacity-0', 'pointer-events-none');
+                nextStepEl.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
+            } else {
+                prevStepEl.classList.add('translate-x-full', 'opacity-0', 'pointer-events-none');
+                nextStepEl.classList.remove('-translate-x-full', 'opacity-0', 'pointer-events-none');
+            }
+            wizardStep = nextStepNum;
+            updateWizardUI();
+        }
+
+        function updateWizardUI() {
+            document.getElementById('collab-step-indicator').textContent = `Step ${wizardStep} of ${totalWizardSteps}`;
+            document.getElementById('collab-progress').style.width = `${(wizardStep / totalWizardSteps) * 100}%`;
+
+            const backBtn = document.getElementById('collab-back');
+            const nextBtn = document.getElementById('collab-next');
+
+            if (wizardStep === 1) backBtn.classList.add('invisible');
+            else backBtn.classList.remove('invisible');
+
+            if (wizardStep === 3) nextBtn.textContent = 'Launch Project';
+            else nextBtn.textContent = 'Next Step';
+        }
+
+        function submitProject() {
+            const nextBtn = document.getElementById('collab-next');
+            const backBtn = document.getElementById('collab-back');
+
+            const name = document.getElementById('client-name').value;
+            const email = document.getElementById('client-email').value;
+            const type = document.getElementById('selected-project-type').value;
+            const budget = document.getElementById('budget-val').textContent;
+            const desc = document.getElementById('project-desc').value;
+
+            if (!name || !email || !desc) {
+                alert("Please fill in your contact details and description.");
+                return;
+            }
+
+            nextBtn.innerHTML = 'Transmitting...';
+            nextBtn.disabled = true;
+            backBtn.disabled = true;
+
+            const payload = {
+                name,
+                email,
+                type,
+                budget,
+                desc
+            };
+
+            fetch('https://liandjelomartos.onrender.com/send-project', {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("step-3").classList.add('-translate-x-full', 'opacity-0');
+                        const successEl = document.getElementById('step-success');
+                        successEl.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
+                        nextBtn.parentElement.style.display = 'none';
+                    } else {
+                        throw new Error("Failed sending mail");
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Transmission Failed.");
+                    nextBtn.innerHTML = 'Launch Project';
+                    nextBtn.disabled = false;
+                    backBtn.disabled = false;
+                });
+        }
+
+        // --- MODAL LOGIC ---
+        function openModal(index) {
+            const project = projects[index];
+            if (!project) return;
+
+            document.getElementById('modal-image').src = project.image;
+            document.getElementById('modal-title').textContent = project.title;
+            document.getElementById('modal-link').href = project.link;
+            document.getElementById('modal-description').textContent = project.description;
+            document.getElementById('modal-tech-stack').innerHTML = project.tech.map(t => `<span class="px-3 py-1 text-sm font-mono bg-slate-800 text-sky-200/80 rounded border border-white/5">${t}</span>`).join('');
+
+            const gallerySection = document.getElementById('modal-gallery-section');
+            const galleryGrid = document.getElementById('modal-gallery-grid');
+
+            galleryGrid.innerHTML = ''; // Clear previous
+
+            if (project.attachments && project.attachments.length > 0) {
+                gallerySection.classList.remove('hidden');
+                currentLightboxImages = project.attachments;
+
+                galleryGrid.innerHTML = project.attachments.map((img, i) => `
+                    <div class="group relative aspect-video bg-slate-800 rounded-lg overflow-hidden border border-white/10 cursor-pointer hover:border-sky-500/50 transition-colors" onclick="openLightbox(${i})">
+                        <img src="${img}" alt="Gallery ${i}" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <i data-lucide="zoom-in" class="text-white w-6 h-6"></i>
+                        </div>
+                    </div>
+                `).join('');
+                if (window.lucide) lucide.createIcons();
+            } else {
+                gallerySection.classList.add('hidden');
+                currentLightboxImages = [];
+            }
+
+            document.getElementById('project-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('project-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // --- LIGHTBOX LOGIC ---
+        function openLightbox(index) {
+            currentLightboxIndex = index;
+            updateLightboxUI();
+            document.getElementById('lightbox').classList.remove('hidden');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
+        }
+
+        function nextLightboxImage() {
+            if (currentLightboxImages.length === 0) return;
+            currentLightboxIndex = (currentLightboxIndex + 1) % currentLightboxImages.length;
+            updateLightboxUI();
+        }
+
+        function prevLightboxImage() {
+            if (currentLightboxImages.length === 0) return;
+            currentLightboxIndex = (currentLightboxIndex - 1 + currentLightboxImages.length) % currentLightboxImages.length;
+            updateLightboxUI();
+        }
+
+        function updateLightboxUI() {
+            if (currentLightboxImages.length === 0) return;
+            const imgPath = currentLightboxImages[currentLightboxIndex];
+            const imgEl = document.getElementById('lightbox-image');
+
+            // Fade effect
+            imgEl.style.opacity = '0.5';
+            setTimeout(() => {
+                imgEl.src = imgPath;
+                imgEl.onload = () => { imgEl.style.opacity = '1'; };
+            }, 100);
+
+            document.getElementById('lightbox-counter').textContent = `${currentLightboxIndex + 1} / ${currentLightboxImages.length}`;
+        }
+
+        // --- EXTRA ANIMATIONS ---
+        function initActivityGraph() {
+            const container = document.getElementById('activity-graph');
+            if (!container) return;
+            let html = '';
+            for (let w = 0; w < 20; w++) {
+                html += '<div class="flex flex-col gap-1">';
+                for (let d = 0; d < 7; d++) {
+                    const level = Math.random() > 0.7 ? (Math.random() > 0.5 ? 2 : 1) : 0;
+                    const colors = ['bg-slate-800', 'bg-sky-900', 'bg-sky-500', 'bg-sky-300'];
+                    html += `<div class="w-3 h-3 rounded-sm ${colors[level]} ${level > 0 ? 'hover:scale-125 transition-transform' : ''}"></div>`;
+                }
+                html += '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        function initTechTicker() {
+            const techs = ["React", "TypeScript", "Node.js", "GraphQL", "Docker", "AWS", "Python", "Rust", "Tailwind", "Next.js"];
+            const container = document.getElementById('tech-ticker');
+            if (!container) return;
+            const items = [...techs, ...techs, ...techs];
+            container.innerHTML = items.map(tech => `
+                <div class="flex items-center text-slate-400 font-mono text-sm">
+                    <span class="w-2 h-2 bg-sky-500 rounded-full mr-3 animate-pulse"></span>
+                    ${tech}
+                </div>
+            `).join('');
+        }
+
+        function initWorkflow() {
+            let count = 0;
+            const el = document.getElementById('tasks-count');
+            if (el) setInterval(() => { count++; el.textContent = count; }, 4000);
+        }
+    </script>
+</body>
+
+</html>
